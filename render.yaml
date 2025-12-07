@@ -2,8 +2,8 @@ services:
   - type: web
     name: texnousta-api
     env: go
-    buildCommand: go build -o main cmd/main.go
-    startCommand: ./main
+    buildCommand: go build -o app main.go
+    startCommand: ./app
     healthCheckPath: /api/v1/products
     plan: free
     envVars:
