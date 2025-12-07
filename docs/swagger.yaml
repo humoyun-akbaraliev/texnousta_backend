@@ -1,0 +1,605 @@
+basePath: /api/v1
+definitions:
+  handlers.ContactRequest:
+    properties:
+      email:
+        type: string
+      message:
+        minLength: 10
+        type: string
+      name:
+        minLength: 2
+        type: string
+      phone:
+        type: string
+      subject:
+        type: string
+    required:
+    - message
+    - name
+    - phone
+    - subject
+    type: object
+  handlers.PhoneContactRequest:
+    properties:
+      phone:
+        type: string
+    required:
+    - phone
+    type: object
+  handlers.QuickContactRequest:
+    properties:
+      name:
+        minLength: 2
+        type: string
+      phone:
+        type: string
+    required:
+    - name
+    - phone
+    type: object
+  models.CategoryRequest:
+    properties:
+      description:
+        type: string
+      is_active:
+        type: boolean
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  models.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  models.ProductRequest:
+    properties:
+      brand:
+        type: string
+      category_id:
+        type: integer
+      description:
+        type: string
+      is_active:
+        type: boolean
+      is_featured:
+        type: boolean
+      model:
+        type: string
+      name:
+        type: string
+      old_price:
+        type: number
+      price:
+        type: number
+      stock:
+        type: integer
+    required:
+    - category_id
+    - name
+    - price
+    type: object
+  models.RegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        minLength: 2
+        type: string
+      password:
+        minLength: 6
+        type: string
+      phone:
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: admin@texnousta.com
+    name: API Support
+  description: API для интернет-магазина техники TexnoUsta
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: TexnoUsta API
+  version: "1.0"
+paths:
+  /admin/categories:
+    post:
+      consumes:
+      - application/json
+      description: Создание новой категории товаров (только для администраторов)
+      parameters:
+      - description: Данные категории
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/models.CategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Создать категорию
+      tags:
+      - admin
+  /admin/contacts:
+    get:
+      consumes:
+      - application/json
+      description: Получение списка контактных обращений с фильтрацией (только для
+        администраторов)
+      parameters:
+      - default: 1
+        description: Номер страницы
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Количество на странице
+        in: query
+        name: limit
+        type: integer
+      - description: Только непрочитанные
+        in: query
+        name: unread
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получить список обращений
+      tags:
+      - admin
+  /admin/products:
+    post:
+      consumes:
+      - application/json
+      description: Создание нового товара (только для администраторов)
+      parameters:
+      - description: Данные товара
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/models.ProductRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Создать товар
+      tags:
+      - admin
+  /categories:
+    get:
+      consumes:
+      - application/json
+      description: Получение всех активных категорий товаров
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Получить список категорий
+      tags:
+      - categories
+  /contact:
+    post:
+      consumes:
+      - application/json
+      description: Отправка полной контактной формы с темой и сообщением
+      parameters:
+      - description: Данные обращения
+        in: body
+        name: contact
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.ContactRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Отправить контактную форму
+      tags:
+      - contact
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Вход в систему с получением JWT токена
+      parameters:
+      - description: Учетные данные
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Авторизация пользователя
+      tags:
+      - auth
+  /phone-contact:
+    post:
+      consumes:
+      - application/json
+      description: Сохранение только номера телефона для обратного звонка
+      parameters:
+      - description: Номер телефона
+        in: body
+        name: phone
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.PhoneContactRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Оставить телефон
+      tags:
+      - contact
+  /products:
+    get:
+      consumes:
+      - application/json
+      description: Получение товаров с возможностью фильтрации по категории, поиску
+        и пагинацией
+      parameters:
+      - default: 1
+        description: Номер страницы
+        in: query
+        name: page
+        type: integer
+      - default: 12
+        description: Количество на странице
+        in: query
+        name: limit
+        type: integer
+      - description: ID категории
+        in: query
+        name: category
+        type: integer
+      - description: Поиск по названию
+        in: query
+        name: search
+        type: string
+      - description: Только рекомендуемые
+        in: query
+        name: featured
+        type: boolean
+      - default: created_at
+        description: Сортировка
+        in: query
+        name: sort
+        type: string
+      - default: desc
+        description: Порядок сортировки
+        in: query
+        name: order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Получить список товаров
+      tags:
+      - products
+  /products/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Получение информации о конкретном товаре
+      parameters:
+      - description: ID товара
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Получить товар по ID
+      tags:
+      - products
+  /profile:
+    get:
+      consumes:
+      - application/json
+      description: Получение информации о текущем авторизованном пользователе
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получить профиль пользователя
+      tags:
+      - auth
+    put:
+      consumes:
+      - application/json
+      description: Обновление имени и телефона пользователя
+      parameters:
+      - description: Данные для обновления
+        in: body
+        name: profile
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Обновить профиль пользователя
+      tags:
+      - auth
+  /quick-contact:
+    post:
+      consumes:
+      - application/json
+      description: Отправка быстрой заявки с именем и телефоном для обратного звонка
+      parameters:
+      - description: Имя и телефон
+        in: body
+        name: contact
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.QuickContactRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Быстрая заявка
+      tags:
+      - contact
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Создание нового аккаунта пользователя
+      parameters:
+      - description: Данные пользователя
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Регистрация пользователя
+      tags:
+      - auth
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

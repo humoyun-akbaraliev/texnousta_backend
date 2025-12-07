@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TexnoUsta API Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .endpoint {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .endpoint h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .method {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .get { background-color: #28a745; }
+        .post { background-color: #007bff; }
+        .put { background-color: #ffc107; color: black; }
+        .delete { background-color: #dc3545; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px 5px 5px 0;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .admin-btn {
+            background: #dc3545;
+        }
+        .admin-btn:hover {
+            background: #c82333;
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .auth-section {
+            background: #e8f5e8;
+            border-left: 4px solid #28a745;
+        }
+        .admin-section {
+            background: #ffe8e8;
+            border-left: 4px solid #dc3545;
+        }
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: 200px;
+            padding: 5px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .token-display {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🛍️ TexnoUsta API Tester</h1>
+    <p><strong>Base URL:</strong> http://localhost:8080/api/v1</p>
+
+    <!-- Токен авторизации -->
+    <div class="section">
+        <h3>🔑 Токен авторизации</h3>
+        <div id="tokenDisplay" class="token-display">Токен не установлен</div>
+        <button onclick="clearToken()">Очистить токен</button>
+    </div>
+
+    <div class="container">
+        <!-- Публичные эндпоинты -->
+        <div class="section">
+            <h3>📱 Публичные эндпоинты</h3>
+            
+            <div class="endpoint auth-section">
+                <h4><span class="method post">POST</span> Авторизация админа</h4>
+                <input type="email" id="loginEmail" placeholder="Email" value="admin@texnousta.com">
+                <input type="password" id="loginPassword" placeholder="Password" value="password">
+                <br>
+                <button onclick="login()">Войти</button>
+            </div>
+
+            <div class="endpoint">
+                <h4><span class="method get">GET</span> Товары</h4>
+                <button onclick="getProducts()">Получить товары</button>
+                <button onclick="getFeaturedProducts()">Рекомендуемые товары</button>
+                <button onclick="getProduct(1)">Товар #1</button>
+            </div>
+
+            <div class="endpoint">
+                <h4><span class="method get">GET</span> Категории</h4>
+                <button onclick="getCategories()">Получить категории</button>
+            </div>
+
+            <div class="endpoint">
+                <h4><span class="method post">POST</span> Быстрая заявка</h4>
+                <input type="text" id="quickName" placeholder="Имя" value="Тест Пользователь">
+                <input type="text" id="quickPhone" placeholder="Телефон" value="+998901234567">
+                <br>
+                <button onclick="quickContact()">Отправить</button>
+            </div>
+
+            <div class="endpoint">
+                <h4><span class="method post">POST</span> Полная заявка</h4>
+                <input type="text" id="fullName" placeholder="Имя" value="Мария Иванова"><br>
+                <input type="email" id="fullEmail" placeholder="Email" value="maria@test.com"><br>
+                <input type="text" id="fullPhone" placeholder="Телефон" value="+998901234568"><br>
+                <input type="text" id="fullSubject" placeholder="Тема" value="Вопрос о товаре"><br>
+                <button onclick="fullContact()">Отправить</button>
+            </div>
+        </div>
+
+        <!-- Админские эндпоинты -->
+        <div class="section admin-section">
+            <h3>🔒 Админские эндпоинты</h3>
+            
+            <div class="endpoint">
+                <h4><span class="method get">GET</span> Профиль</h4>
+                <button class="admin-btn" onclick="getProfile()">Мой профиль</button>
+            </div>
+
+            <div class="endpoint">
+                <h4><span class="method get">GET</span> Контактные обращения</h4>
+                <button class="admin-btn" onclick="getContacts()">Все обращения</button>
+                <button class="admin-btn" onclick="getUnreadContacts()">Непрочитанные</button>
+            </div>
+
+            <div class="endpoint">
+                <h4><span class="method post">POST</span> Создать товар</h4>
+                <input type="text" id="productName" placeholder="Название" value="Тестовый товар"><br>
+                <input type="text" id="productPrice" placeholder="Цена" value="999"><br>
+                <button class="admin-btn" onclick="createProduct()">Создать товар</button>
+            </div>
+
+            <div class="endpoint">
+                <h4><span class="method post">POST</span> Создать категорию</h4>
+                <input type="text" id="categoryName" placeholder="Название" value="Тестовая категория"><br>
+                <button class="admin-btn" onclick="createCategory()">Создать категорию</button>
+            </div>
+
+            <div class="endpoint">
+                <h4><span class="method get">GET</span> Управление пользователями</h4>
+                <button class="admin-btn" onclick="getUsers()">Все пользователи</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Результаты -->
+    <div class="section">
+        <h3>📋 Результаты запросов</h3>
+        <textarea id="results" placeholder="Результаты запросов будут отображаться здесь..."></textarea>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080/api/v1';
+        let authToken = localStorage.getItem('authToken') || '';
+
+        // Обновить отображение токена
+        function updateTokenDisplay() {
+            const display = document.getElementById('tokenDisplay');
+            if (authToken) {
+                display.innerHTML = `<strong>Токен установлен:</strong><br>${authToken.substring(0, 50)}...`;
+                display.style.backgroundColor = '#d4edda';
+            } else {
+                display.innerHTML = 'Токен не установлен';
+                display.style.backgroundColor = '#f8f9fa';
+            }
+        }
+
+        // Очистить токен
+        function clearToken() {
+            authToken = '';
+            localStorage.removeItem('authToken');
+            updateTokenDisplay();
+            logResult('Токен очищен');
+        }
+
+        // Инициализация
+        updateTokenDisplay();
+
+        // Логирование результатов
+        function logResult(message) {
+            const results = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            results.value = `[${timestamp}] ${message}\n\n${results.value}`;
+        }
+
+        // Базовая функция для запросов
+        async function makeRequest(method, endpoint, data = null, requiresAuth = false) {
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+
+            if (requiresAuth && authToken) {
+                headers['Authorization'] = `Bearer ${authToken}`;
+            }
+
+            const config = {
+                method,
+                headers
+            };
+
+            if (data) {
+                config.body = JSON.stringify(data);
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, config);
+                const result = await response.json();
+                
+                const statusText = response.ok ? '✅ Успешно' : '❌ Ошибка';
+                logResult(`${statusText} ${method} ${endpoint} (${response.status})\n${JSON.stringify(result, null, 2)}`);
+                
+                return result;
+            } catch (error) {
+                logResult(`❌ Ошибка сети ${method} ${endpoint}\n${error.message}`);
+                throw error;
+            }
+        }
+
+        // Авторизация
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            const result = await makeRequest('POST', '/login', { email, password });
+            
+            if (result.token) {
+                authToken = result.token;
+                localStorage.setItem('authToken', authToken);
+                updateTokenDisplay();
+            }
+        }
+
+        // Публичные эндпоинты
+        async function getProducts() {
+            await makeRequest('GET', '/products');
+        }
+
+        async function getFeaturedProducts() {
+            await makeRequest('GET', '/products?featured=true&limit=5');
+        }
+
+        async function getProduct(id) {
+            await makeRequest('GET', `/products/${id}`);
+        }
+
+        async function getCategories() {
+            await makeRequest('GET', '/categories');
+        }
+
+        async function quickContact() {
+            const name = document.getElementById('quickName').value;
+            const phone = document.getElementById('quickPhone').value;
+            await makeRequest('POST', '/quick-contact', { name, phone });
+        }
+
+        async function fullContact() {
+            const data = {
+                name: document.getElementById('fullName').value,
+                email: document.getElementById('fullEmail').value,
+                phone: document.getElementById('fullPhone').value,
+                subject: document.getElementById('fullSubject').value,
+                message: 'Тестовое сообщение с подробной информацией о запросе'
+            };
+            await makeRequest('POST', '/contact', data);
+        }
+
+        // Админские эндпоинты
+        async function getProfile() {
+            await makeRequest('GET', '/profile', null, true);
+        }
+
+        async function getContacts() {
+            await makeRequest('GET', '/admin/contacts', null, true);
+        }
+
+        async function getUnreadContacts() {
+            await makeRequest('GET', '/admin/contacts?unread=true', null, true);
+        }
+
+        async function createProduct() {
+            const data = {
+                name: document.getElementById('productName').value,
+                description: 'Описание тестового товара',
+                price: parseFloat(document.getElementById('productPrice').value),
+                category_id: 1,
+                brand: 'Test Brand',
+                model: 'Test Model',
+                stock: 10,
+                is_active: true,
+                is_featured: false
+            };
+            await makeRequest('POST', '/admin/products', data, true);
+        }
+
+        async function createCategory() {
+            const data = {
+                name: document.getElementById('categoryName').value,
+                description: 'Описание тестовой категории',
+                is_active: true
+            };
+            await makeRequest('POST', '/admin/categories', data, true);
+        }
+
+        async function getUsers() {
+            await makeRequest('GET', '/admin/users', null, true);
+        }
+
+        // Автоматические тесты
+        async function runAllTests() {
+            logResult('🚀 Запуск автоматических тестов...');
+            
+            // Тест публичных эндпоинтов
+            await getProducts();
+            await getCategories();
+            await quickContact();
+            
+            // Авторизация
+            await login();
+            
+            // Тест админских эндпоинтов
+            await getProfile();
+            await getContacts();
+            
+            logResult('✅ Все тесты завершены!');
+        }
+
+        // Добавить кнопку автотестов
+        document.addEventListener('DOMContentLoaded', function() {
+            const button = document.createElement('button');
+            button.textContent = '🧪 Запустить все тесты';
+            button.style.backgroundColor = '#28a745';
+            button.style.padding = '10px 20px';
+            button.style.fontSize = '16px';
+            button.onclick = runAllTests;
+            
+            const container = document.querySelector('h1');
+            container.parentNode.insertBefore(button, container.nextSibling);
+        });
+    </script>
+</body>
+</html>

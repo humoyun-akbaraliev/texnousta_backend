@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: texnousta-api
+    env: go
+    buildCommand: go build -o main cmd/main.go
+    startCommand: ./main
+    healthCheckPath: /api/v1/products
+    plan: free
+    envVars:
+      - key: GIN_MODE
+        value: release
+      - key: PORT
+        value: 8080
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        value: postgresql://neondb_owner:npg_UfiA4BeTNC3P@ep-flat-bonus-agmh7719-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # If you prefer the allow list template instead of the deny list, see community template:
 # https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
 #
@@ -30,3 +31,49 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+=======
+# Файлы и папки для игнорирования Git
+*.log
+*.tmp
+*.temp
+
+# Бинарные файлы
+texnousta-server
+main
+*.exe
+
+# Переменные окружения (только .env, .env.example оставляем)
+.env
+
+# Зависимости
+vendor/
+
+# Загрузки и временные файлы
+uploads/*
+!uploads/.gitkeep
+temp/
+tmp/
+
+# IDE файлы
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS файлы
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Test coverage
+*.out
+coverage.html
+
+# Air для hot reload (если используется)
+tmp/
+>>>>>>> 79dd27e (Initial commit)
