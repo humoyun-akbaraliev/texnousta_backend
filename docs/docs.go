@@ -23,6 +23,78 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/analytics/phone-clicks": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Возвращает статистику кликов по кнопке телефона",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Получить статистику кликов по телефону",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Количество дней для отображения (по умолчанию 30)",
+                        "name": "days",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.PhoneClickStatsResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/analytics/visitors": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Возвращает статистику посетителей по дням и месяцам",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Получить статистику посетителей",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Количество дней для отображения (по умолчанию 30)",
+                        "name": "days",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.VisitorStatsResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/categories": {
             "post": {
                 "security": [
@@ -163,6 +235,87 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/phone-contacts": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Возвращает список всех оставленных телефонных номеров",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Получить список телефонных контактов",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Номер страницы (по умолчанию 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Количество записей на странице (по умолчанию 20)",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/phone-contacts/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Удаляет телефонный номер из базы данных",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Удалить телефонный контакт",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID контакта",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/admin/products": {
             "post": {
                 "security": [
@@ -223,6 +376,54 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/login": {
+            "post": {
+                "description": "Авторизация для доступа к админ панели аналитики",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Вход в админ панель",
+                "parameters": [
+                    {
+                        "description": "Данные для входа",
+                        "name": "login",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AdminLoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.AdminLoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -734,6 +935,54 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/track-phone-click": {
+            "post": {
+                "description": "Регистрирует клик по кнопке с номером телефона",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Отслеживание кликов по телефону",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/track-visitor": {
+            "post": {
+                "description": "Регистрирует посещение сайта по IP адресу",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Отслеживание посетителей",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -792,6 +1041,32 @@ const docTemplate = `{
                 }
             }
         },
+        "models.AdminLoginRequest": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.AdminLoginResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
         "models.CategoryRequest": {
             "type": "object",
             "required": [
@@ -809,6 +1084,20 @@ const docTemplate = `{
                 }
             }
         },
+        "models.DailyStat": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "total_views": {
+                    "type": "integer"
+                },
+                "unique_views": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.LoginRequest": {
             "type": "object",
             "required": [
@@ -822,6 +1111,37 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "minLength": 6
+                }
+            }
+        },
+        "models.MonthlyStat": {
+            "type": "object",
+            "properties": {
+                "month": {
+                    "type": "string"
+                },
+                "total_views": {
+                    "type": "integer"
+                },
+                "unique_views": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.PhoneClickStatsResponse": {
+            "type": "object",
+            "properties": {
+                "daily_clicks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DailyStat"
+                    }
+                },
+                "total_clicks": {
+                    "type": "integer"
+                },
+                "unique_clicks": {
+                    "type": "integer"
                 }
             }
         },
@@ -886,6 +1206,26 @@ const docTemplate = `{
                 },
                 "phone": {
                     "type": "string"
+                }
+            }
+        },
+        "models.VisitorStatsResponse": {
+            "type": "object",
+            "properties": {
+                "daily_stats": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DailyStat"
+                    }
+                },
+                "monthly_stats": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.MonthlyStat"
+                    }
+                },
+                "total_unique": {
+                    "type": "integer"
                 }
             }
         }

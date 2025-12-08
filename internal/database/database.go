@@ -48,6 +48,9 @@ func Init() {
 		&models.Order{},
 		&models.OrderItem{},
 		&models.ContactForm{},
+		&models.VisitorStat{},
+		&models.PhoneContact{},
+		&models.PhoneClickStat{},
 	)
 
 	if err != nil {

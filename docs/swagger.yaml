@@ -38,6 +38,23 @@ definitions:
     - name
     - phone
     type: object
+  models.AdminLoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  models.AdminLoginResponse:
+    properties:
+      message:
+        type: string
+      token:
+        type: string
+    type: object
   models.CategoryRequest:
     properties:
       description:
@@ -49,6 +66,15 @@ definitions:
     required:
     - name
     type: object
+  models.DailyStat:
+    properties:
+      date:
+        type: string
+      total_views:
+        type: integer
+      unique_views:
+        type: integer
+    type: object
   models.LoginRequest:
     properties:
       email:
@@ -59,6 +85,26 @@ definitions:
     required:
     - email
     - password
+    type: object
+  models.MonthlyStat:
+    properties:
+      month:
+        type: string
+      total_views:
+        type: integer
+      unique_views:
+        type: integer
+    type: object
+  models.PhoneClickStatsResponse:
+    properties:
+      daily_clicks:
+        items:
+          $ref: '#/definitions/models.DailyStat'
+        type: array
+      total_clicks:
+        type: integer
+      unique_clicks:
+        type: integer
     type: object
   models.ProductRequest:
     properties:
@@ -104,6 +150,19 @@ definitions:
     - name
     - password
     type: object
+  models.VisitorStatsResponse:
+    properties:
+      daily_stats:
+        items:
+          $ref: '#/definitions/models.DailyStat'
+        type: array
+      monthly_stats:
+        items:
+          $ref: '#/definitions/models.MonthlyStat'
+        type: array
+      total_unique:
+        type: integer
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -117,6 +176,50 @@ info:
   title: TexnoUsta API
   version: "1.0"
 paths:
+  /admin/analytics/phone-clicks:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает статистику кликов по кнопке телефона
+      parameters:
+      - description: Количество дней для отображения (по умолчанию 30)
+        in: query
+        name: days
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PhoneClickStatsResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить статистику кликов по телефону
+      tags:
+      - Analytics
+  /admin/analytics/visitors:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает статистику посетителей по дням и месяцам
+      parameters:
+      - description: Количество дней для отображения (по умолчанию 30)
+        in: query
+        name: days
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.VisitorStatsResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить статистику посетителей
+      tags:
+      - Analytics
   /admin/categories:
     post:
       consumes:
@@ -211,6 +314,57 @@ paths:
       summary: Получить список обращений
       tags:
       - admin
+  /admin/phone-contacts:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список всех оставленных телефонных номеров
+      parameters:
+      - description: Номер страницы (по умолчанию 1)
+        in: query
+        name: page
+        type: integer
+      - description: Количество записей на странице (по умолчанию 20)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получить список телефонных контактов
+      tags:
+      - Analytics
+  /admin/phone-contacts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет телефонный номер из базы данных
+      parameters:
+      - description: ID контакта
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Удалить телефонный контакт
+      tags:
+      - Analytics
   /admin/products:
     post:
       consumes:
@@ -256,6 +410,38 @@ paths:
       summary: Создать товар
       tags:
       - admin
+  /api/v1/admin/login:
+    post:
+      consumes:
+      - application/json
+      description: Авторизация для доступа к админ панели аналитики
+      parameters:
+      - description: Данные для входа
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/models.AdminLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AdminLoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Вход в админ панель
+      tags:
+      - Admin
   /categories:
     get:
       consumes:
@@ -596,6 +782,38 @@ paths:
       summary: Регистрация пользователя
       tags:
       - auth
+  /track-phone-click:
+    post:
+      consumes:
+      - application/json
+      description: Регистрирует клик по кнопке с номером телефона
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Отслеживание кликов по телефону
+      tags:
+      - Analytics
+  /track-visitor:
+    post:
+      consumes:
+      - application/json
+      description: Регистрирует посещение сайта по IP адресу
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Отслеживание посетителей
+      tags:
+      - Analytics
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and JWT token.

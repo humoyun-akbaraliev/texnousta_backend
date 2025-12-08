@@ -81,6 +81,22 @@ func main() {
 		api.POST("/quick-contact", handlers.CreateQuickContact)
 		api.POST("/phone-contact", handlers.CreatePhoneContact)
 		
+		// Аналитика (публичные эндпоинты)
+		api.POST("/track-visitor", handlers.TrackVisitor)
+		api.POST("/track-phone-click", handlers.TrackPhoneClick)
+		
+		// Админ логин (без авторизации)
+		api.POST("/admin/login", handlers.AdminLogin)
+		
+		// Админ аналитика (с простым токеном)
+		adminAnalytics := api.Group("/admin")
+		{
+			adminAnalytics.GET("/visitor-stats", handlers.GetVisitorStats)
+			adminAnalytics.GET("/phone-click-stats", handlers.GetPhoneClickStats)
+			adminAnalytics.GET("/phone-contacts", handlers.GetPhoneContacts)
+			adminAnalytics.DELETE("/phone-contacts/:id", handlers.DeletePhoneContact)
+		}
+		
 		// Защищенные роуты
 		protected := api.Group("/")
 		protected.Use(middleware.AuthMiddleware())

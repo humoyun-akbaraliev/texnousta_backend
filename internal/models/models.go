@@ -129,3 +129,69 @@ type CategoryRequest struct {
 	Description string `json:"description"`
 	IsActive    bool   `json:"is_active"`
 }
+
+// VisitorStat - модель для отслеживания посетителей
+type VisitorStat struct {
+	ID        uint      `json:"id" gorm:"primaryKey"`
+	IPAddress string    `json:"ip_address" gorm:"size:45;not null"`
+	UserAgent string    `json:"user_agent" gorm:"size:500"`
+	Date      string    `json:"date" gorm:"size:10;not null"` // YYYY-MM-DD
+	Month     string    `json:"month" gorm:"size:7;not null"` // YYYY-MM
+	CreatedAt time.Time `json:"created_at"`
+}
+
+// PhoneContact - модель для хранения только телефонных номеров
+type PhoneContact struct {
+	ID        uint      `json:"id" gorm:"primaryKey"`
+	Phone     string    `json:"phone" gorm:"size:20;not null"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+// PhoneClickStat - модель для отслеживания кликов по кнопке телефона
+type PhoneClickStat struct {
+	ID        uint      `json:"id" gorm:"primaryKey"`
+	IPAddress string    `json:"ip_address" gorm:"size:45;not null"`
+	UserAgent string    `json:"user_agent" gorm:"size:500"`
+	Date      string    `json:"date" gorm:"size:10;not null"` // YYYY-MM-DD
+	CreatedAt time.Time `json:"created_at"`
+}
+
+// VisitorStatsResponse - ответ для статистики посетителей
+type VisitorStatsResponse struct {
+	DailyStats   []DailyStat   `json:"daily_stats"`
+	MonthlyStats []MonthlyStat `json:"monthly_stats"`
+	TotalUnique  int64         `json:"total_unique"`
+}
+
+// DailyStat - дневная статистика
+type DailyStat struct {
+	Date        string `json:"date"`
+	UniqueViews int64  `json:"unique_views"`
+	TotalViews  int64  `json:"total_views"`
+}
+
+// MonthlyStat - месячная статистика  
+type MonthlyStat struct {
+	Month       string `json:"month"`
+	UniqueViews int64  `json:"unique_views"`
+	TotalViews  int64  `json:"total_views"`
+}
+
+// PhoneClickStatsResponse - ответ для статистики кликов по телефону
+type PhoneClickStatsResponse struct {
+	TotalClicks  int64       `json:"total_clicks"`
+	DailyClicks  []DailyStat `json:"daily_clicks"`
+	UniqueClicks int64       `json:"unique_clicks"`
+}
+
+// AdminLoginRequest - запрос для входа в админ панель
+type AdminLoginRequest struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+// AdminLoginResponse - ответ при входе в админ панель
+type AdminLoginResponse struct {
+	Token   string `json:"token"`
+	Message string `json:"message"`
+}

@@ -245,6 +245,12 @@ func CreatePhoneContact(c *gin.Context) {
 		return
 	}
 
+	// Также сохраняем в отдельную таблицу для аналитики
+	phoneContact := models.PhoneContact{
+		Phone: req.Phone,
+	}
+	database.DB.Create(&phoneContact)
+
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "Номер телефона сохранен! Мы свяжемся с вами.",
 		"id":      contact.ID,
