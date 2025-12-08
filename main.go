@@ -49,23 +49,9 @@ func main() {
 	// Создание роутера
 	r := gin.Default()
 
-	// Настройка CORS
+	// Настройка CORS - разрешить все домены и методы
 	config := cors.DefaultConfig()
-	
-	// Настройка CORS для продакшена и разработки
-	if gin.Mode() == gin.ReleaseMode {
-		// Продакшен - разрешить только определенные домены
-		corsOrigins := os.Getenv("CORS_ORIGINS")
-		if corsOrigins != "" {
-			config.AllowOrigins = []string{corsOrigins}
-		} else {
-			config.AllowOrigins = []string{"https://your-frontend-domain.com"}
-		}
-	} else {
-		// Разработка - разрешить localhost
-		config.AllowOrigins = []string{"http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000"}
-	}
-	
+	config.AllowAllOrigins = true
 	config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"}
 	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 	config.AllowCredentials = true
