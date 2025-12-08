@@ -19,8 +19,13 @@ func Init() {
 	
 	// Выбор базы данных в зависимости от окружения
 	databaseURL := os.Getenv("DATABASE_URL")
+	ginMode := os.Getenv("GIN_MODE")
 	
-	if databaseURL != "" {
+	// Проверяем, находимся ли мы в продакшене
+	if databaseURL != "" || ginMode == "release" {
+		if databaseURL == "" {
+			log.Fatal("DATABASE_URL не установлена для продакшен режима!")
+		}
 		// Продакшен - используем PostgreSQL
 		DB, err = gorm.Open(postgres.Open(databaseURL), &gorm.Config{
 			Logger: logger.Default.LogMode(logger.Silent),
@@ -28,7 +33,7 @@ func Init() {
 		if err != nil {
 			log.Fatal("Ошибка подключения к PostgreSQL:", err)
 		}
-		log.Println("Успешное подключение к базе данных PostgreSQL")
+		log.Printf("✅ Успешное подключение к базе данных PostgreSQL (URL: %s...)", databaseURL[:20])
 	} else {
 		// Локальная разработка - используем SQLite
 		DB, err = gorm.Open(sqlite.Open("texnousta.db"), &gorm.Config{
@@ -37,7 +42,7 @@ func Init() {
 		if err != nil {
 			log.Fatal("Ошибка подключения к SQLite:", err)
 		}
-		log.Println("Успешное подключение к базе данных SQLite")
+		log.Println("✅ Успешное подключение к базе данных SQLite")
 	}
 
 	// Автомиграция
