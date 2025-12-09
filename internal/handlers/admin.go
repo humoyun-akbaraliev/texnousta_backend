@@ -193,9 +193,8 @@ func UpdateUser(c *gin.Context) {
 	if req.Name != "" {
 		updates["name"] = req.Name
 	}
-	if req.Phone != "" {
-		updates["phone"] = req.Phone
-	}
+	// Всегда обновляем номер телефона (включая пустую строку)
+	updates["phone"] = req.Phone
 	if req.Role != "" {
 		updates["role"] = req.Role
 	}

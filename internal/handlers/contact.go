@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 	"texnousta-backend/internal/database"
@@ -241,15 +242,21 @@ func CreatePhoneContact(c *gin.Context) {
 	}
 
 	if err := database.DB.Create(&contact).Error; err != nil {
+		log.Printf("❌ Ошибка сохранения в contact_forms: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при сохранении номера"})
 		return
 	}
+	log.Printf("✅ Контакт сохранен в contact_forms с ID: %d", contact.ID)
 
 	// Также сохраняем в отдельную таблицу для аналитики
 	phoneContact := models.PhoneContact{
 		Phone: req.Phone,
 	}
-	database.DB.Create(&phoneContact)
+	if err := database.DB.Create(&phoneContact).Error; err != nil {
+		log.Printf("❌ Ошибка сохранения в phone_contacts: %v", err)
+	} else {
+		log.Printf("✅ Телефон сохранен в phone_contacts с ID: %d", phoneContact.ID)
+	}
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "Номер телефона сохранен! Мы свяжемся с вами.",

@@ -95,6 +95,7 @@ func main() {
 			adminAnalytics.GET("/phone-click-stats", handlers.GetPhoneClickStats)
 			adminAnalytics.GET("/phone-contacts", handlers.GetPhoneContacts)
 			adminAnalytics.DELETE("/phone-contacts/:id", handlers.DeletePhoneContact)
+			adminAnalytics.GET("/database-status", handlers.GetDatabaseStatus)
 		}
 		
 		// Защищенные роуты

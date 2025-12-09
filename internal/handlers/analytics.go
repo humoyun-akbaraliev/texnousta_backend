@@ -3,7 +3,9 @@ package handlers
 import (
 	"crypto/md5"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -96,9 +98,11 @@ func TrackVisitor(c *gin.Context) {
 		}
 		
 		if err := database.DB.Create(&visitor).Error; err != nil {
+			log.Printf("❌ Ошибка сохранения посетителя: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сохранения статистики"})
 			return
 		}
+		log.Printf("✅ Посетитель зарегистрирован: IP=%s, дата=%s", clientIP, date)
 	}
 	
 	c.JSON(http.StatusOK, gin.H{"message": "Посещение зарегистрировано"})
@@ -187,10 +191,12 @@ func TrackPhoneClick(c *gin.Context) {
 	}
 	
 	if err := database.DB.Create(&phoneClick).Error; err != nil {
+		log.Printf("❌ Ошибка сохранения клика по телефону: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сохранения статистики кликов"})
 		return
 	}
 	
+	log.Printf("✅ Клик по телефону зарегистрирован: IP=%s, дата=%s", clientIP, date)
 	c.JSON(http.StatusOK, gin.H{"message": "Клик по телефону зарегистрирован"})
 }
 
@@ -318,5 +324,46 @@ func DeletePhoneContact(c *gin.Context) {
 	}
 	
 	c.JSON(http.StatusOK, gin.H{"message": "Контакт успешно удален"})
+}
+
+// GetDatabaseStatus проверяет статус базы данных
+// @Summary Статус базы данных
+// @Description Получить информацию о типе базы данных и количестве записей
+// @Tags Admin
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Admin Token"
+// @Success 200 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Router /api/v1/admin/database-status [get]
+func GetDatabaseStatus(c *gin.Context) {
+	if !isValidAdminToken(c) {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Не авторизован"})
+		return
+	}
+
+	// Определяем тип базы данных
+	dbType := "SQLite"
+	databaseURL := os.Getenv("DATABASE_URL")
+	ginMode := os.Getenv("GIN_MODE")
+	if databaseURL != "" || ginMode == "release" {
+		dbType = "PostgreSQL"
+	}
+
+	// Считаем записи в основных таблицах
+	var phoneContactsCount, visitorsCount, phoneClicksCount int64
+	database.DB.Model(&models.PhoneContact{}).Count(&phoneContactsCount)
+	database.DB.Model(&models.VisitorStat{}).Count(&visitorsCount)
+	database.DB.Model(&models.PhoneClickStat{}).Count(&phoneClicksCount)
+
+	c.JSON(http.StatusOK, gin.H{
+		"database_type":      dbType,
+		"database_url_set":   databaseURL != "",
+		"gin_mode":          ginMode,
+		"phone_contacts":    phoneContactsCount,
+		"visitors":          visitorsCount,
+		"phone_clicks":      phoneClicksCount,
+		"timestamp":         time.Now(),
+	})
 }
 
