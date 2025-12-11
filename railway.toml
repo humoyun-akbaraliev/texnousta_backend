@@ -1,22 +1,6 @@
-# Railway Configuration
-version: '1'
+[build]
+builder = "dockerfile"
 
-build:
-  builder: DOCKERFILE
-  dockerfilePath: Dockerfile
-
-deploy:
-  restartPolicyType: ON_FAILURE
-  restartPolicyMaxRetries: 10
-
-environment:
-  DATABASE_URL:
-    type: string
-  JWT_SECRET:
-    type: string
-  GIN_MODE:
-    type: string
-    default: release
-  PORT:
-    type: string
-    default: 8080
+[deploy]
+startCommand = "go run main.go"
+restartPolicyType = "on_failure"
