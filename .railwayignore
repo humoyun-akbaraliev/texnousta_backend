@@ -1,0 +1,24 @@
+# Ignore Railway local files
+.railway/
+
+# Vercel files (удалены)
+vercel.json
+api/
+.vercel/
+vercel-build.js
+vercel-proxy-example.js
+
+# Local development
+.env.local
+.env.development
+
+# Logs
+*.log
+
+# Database
+*.db
+*.sqlite3
+
+# Go
+vendor/
+dist/
